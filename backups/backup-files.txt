@@ -1,2 +1,0 @@
-// Sample file to push empty folder to repo
-// Delete this file after clone
