@@ -9,81 +9,87 @@ docker pull ghcr.io/lmnaslimited/lensdocker/$(grep IMAGE variable.env | cut -d '
 docker pull redis:6.2-alpine
 
 # Export environment variables from variable.env and generate mariadb_sub.yml
-export $(cat variable.env | xargs)
+set -a
+source variable.env
+set +a
 # create a sub yml file for the mariadb.yml file
 envsubst < ./compose/mariadb.yml > mariadb_sub.yml
 
 #To get the portainer key from the varaiable.env
 PORTAINER_API_KEY=$(grep 'PORTAINER_API_KEY=' variable.env | sed 's/^PORTAINER_API_KEY=//')
 
-# Deploy mariadb stack to Portainer
+# Get Swarm ID (converted to curl)
+SWARM_ID=$(curl -sk -H "X-API-Key: $PORTAINER_API_KEY" https://portainer.docker.localhost/api/endpoints/1/docker/swarm | grep -oP '"ID"\s*:\s*"\K[^"]+')
 
-http --verify=no --form POST https://portainer.docker.localhost/api/stacks \
-  X-API-Key:$PORTAINER_API_KEY \
-  type=1 \
-  method=file \
-  file@./mariadb_sub.yml \
-  endpointId=1 \
-  SwarmID="$(http --verify=no GET https://portainer.docker.localhost/api/endpoints/1/docker/swarm \
-    X-API-Key:$PORTAINER_API_KEY | grep -oP '"ID"\s*:\s*"\K[^"]+')" \
-  Name="$(grep MARIADB_NETWORK variable.env | cut -d '=' -f2)"
+# Deploy mariadb stack (curl version)
+curl -sk -X POST "https://portainer.docker.localhost/api/stacks" \
+  -H "X-API-Key: $PORTAINER_API_KEY" \
+  -F "type=1" \
+  -F "method=file" \
+  -F "file=@./mariadb_sub.yml" \
+  -F "endpointId=1" \
+  -F "SwarmID=$SWARM_ID" \
+  -F "Name=$(grep MARIADB_NETWORK variable.env | cut -d '=' -f2)"
 
 rm -f *_sub.yml
 
 # Process and deploy bench stack to portainer 
 
 sed -i 's/\$\$/__DOLLAR_SIGN__/g' ./compose/erpnext.yml
-export $(cat variable.env | xargs)
+set -a
+source variable.env
+set +a
 envsubst < ./compose/erpnext.yml > erpnext_sub.yml #create a sub yml file for the erpnext.yml file
 sed -i 's/__DOLLAR_SIGN__/$$/g' ./compose/erpnext.yml erpnext_sub.yml
 
-http --verify=no --form POST https://portainer.docker.localhost/api/stacks \
-  X-API-Key:$PORTAINER_API_KEY \
-  type=1 \
-  method=file \
-  file@./erpnext_sub.yml \
-  endpointId=1 \
-  SwarmID="$(http --verify=no GET https://portainer.docker.localhost/api/endpoints/1/docker/swarm \
-    X-API-Key:$PORTAINER_API_KEY | grep -oP '"ID"\s*:\s*"\K[^"]+')" \
-  Name="$(grep BENCH_NAME variable.env | cut -d '=' -f2)"
+curl -sk -X POST "https://portainer.docker.localhost/api/stacks" \
+  -H "X-API-Key: $PORTAINER_API_KEY" \
+  -F "type=1" \
+  -F "method=file" \
+  -F "file=@./erpnext_sub.yml" \
+  -F "endpointId=1" \
+  -F "SwarmID=$SWARM_ID" \
+  -F "Name=$(grep BENCH_NAME variable.env | cut -d '=' -f2)"
 
 rm -f *_sub.yml
 
 # Process and deploy configure-bench stack to portainer
 
 sed -i 's/\$\$/__DOLLAR_SIGN__/g' ./compose/configure-erpnext.yml
-export $(cat variable.env | xargs)
+set -a
+source variable.env
+set +a
 envsubst < ./compose/configure-erpnext.yml > configure-erpnext_sub.yml #create a sub yml file for the config.yml file
 sed -i 's/__DOLLAR_SIGN__/$$/g' ./compose/configure-erpnext.yml configure-erpnext_sub.yml
 
-http --verify=no --form POST https://portainer.docker.localhost/api/stacks \
-  X-API-Key:$PORTAINER_API_KEY \
-  type=1 \
-  method=file \
-  file@./configure-erpnext_sub.yml \
-  endpointId=1 \
-  SwarmID="$(http --verify=no GET https://portainer.docker.localhost/api/endpoints/1/docker/swarm \
-    X-API-Key:$PORTAINER_API_KEY  | grep -oP '"ID"\s*:\s*"\K[^"]+')" \
-  Name="$(grep BENCH_NAME variable.env | cut -d '=' -f2)-configure"
+curl -sk -X POST "https://portainer.docker.localhost/api/stacks" \
+  -H "X-API-Key: $PORTAINER_API_KEY" \
+  -F "type=1" \
+  -F "method=file" \
+  -F "file=@./configure-erpnext_sub.yml" \
+  -F "endpointId=1" \
+  -F "SwarmID=$SWARM_ID" \
+  -F "Name=$(grep BENCH_NAME variable.env | cut -d '=' -f2)-configure"
 
 rm -f *_sub.yml
 
 # Process and deploy create-site stack to portainer
 
 sed -i 's/\$\$/__DOLLAR_SIGN__/g' ./compose/create-site.yml
-export $(cat variable.env | xargs)
+set -a
+source variable.env
+set +a
 envsubst < ./compose/create-site.yml > create-site_sub.yml #create a sub yml file for the create -site.yml file
 sed -i 's/__DOLLAR_SIGN__/$$/g' ./compose/create-site.yml create-site_sub.yml
 
-http --verify=no --form POST https://portainer.docker.localhost/api/stacks \
-  X-API-Key:$PORTAINER_API_KEY \
-  type=1 \
-  method=file \
-  file@./create-site_sub.yml \
-  endpointId=1 \
-  SwarmID="$(http --verify=no GET https://portainer.docker.localhost/api/endpoints/1/docker/swarm \
-    X-API-Key:$PORTAINER_API_KEY  | grep -oP '"ID"\s*:\s*"\K[^"]+')" \
-  Name="$(grep BENCH_NAME variable.env | cut -d '=' -f2)-site"
+curl -sk -X POST "https://portainer.docker.localhost/api/stacks" \
+  -H "X-API-Key: $PORTAINER_API_KEY" \
+  -F "type=1" \
+  -F "method=file" \
+  -F "file=@./create-site_sub.yml" \
+  -F "endpointId=1" \
+  -F "SwarmID=$SWARM_ID" \
+  -F "Name=$(grep BENCH_NAME variable.env | cut -d '=' -f2)-site"
   
 # Cleanup: Delete all files that end with _sub.yml
 rm -f *_sub.yml

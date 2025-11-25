@@ -26,7 +26,7 @@ services:
         - traefik.constraint-label=traefik-public
         - traefik.http.middlewares.prod-redirect.redirectscheme.scheme=https
         # Change router name prefix from erpnext to the name of stack in case of multi bench setup
-        - traefik.http.routers.${BENCH_NAME}-http.rule=Host(${SITES})
+        - traefik.http.routers.${BENCH_NAME}-http.rule=Host(`${SITES}`)
         - traefik.http.routers.${BENCH_NAME}-http.entrypoints=http
         # Remove following lines in case of local setup
         - traefik.http.routers.${BENCH_NAME}-http.middlewares=prod-redirect
