@@ -116,11 +116,11 @@ Update the following variables in the `variable.env` file:
 
 
 ```env 
-IMAGE=erpnext # Docker image name
-VERSION=v14.0.0 # Version tag
+IMAGE=lenscx # Docker image name
+VERSION=v15.48.0 # Version tag
 BENCH_NAME=my-bench # Name of the Frappe bench
 SITES=example.com # Domain(s) for the site
-MARIADB_NETWORK=mariadb-net # MariaDB network name
+MARIADB_NETWORK=mariadb # MariaDB network name
 DATABASE_HOST=mariadb # MariaDB host
 DB_PASSWORD=your_db_password # Database password
 ADMIN_PASSWORD=your_admin_password # Frappe admin password
@@ -140,7 +140,7 @@ DATABASE_HOST=test-amr-pub-db
 DB_PASSWORD=admin@123
 ADMIN_PASSWORD=admin@123
 SITE_NAME=test.docker.localhost
-PORTAINER_API_KEY=your_portainer_api_key # Portainer API key
+PORTAINER_API_KEY=your_portainer_api_key
 
 ```
 
