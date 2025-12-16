@@ -30,7 +30,7 @@ services:
         - traefik.http.routers.${BENCH_NAME}-http.entrypoints=http
         # Remove following lines in case of local setup
         - traefik.http.routers.${BENCH_NAME}-http.middlewares=prod-redirect
-        - traefik.http.routers.${BENCH_NAME}-https.rule=Host(${SITES})
+        - traefik.http.routers.${BENCH_NAME}-https.rule=Host(`${SITES}`)
         - traefik.http.routers.${BENCH_NAME}-https.entrypoints=https
         - traefik.http.routers.${BENCH_NAME}-https.tls=true
         - traefik.http.routers.${BENCH_NAME}-https.tls.certresolver=le
